@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map-Tadabbur — แผนที่อัลกุรอาน</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>
+            <span class="header-logo" aria-hidden="true">📖</span>
+            <span class="header-title">Tadabbur-Maqasid</span>
+            <span class="header-sub">by Tech for Ummah</span>
+        </h1>
+        <div class="header-reading">
+            <span class="header-reading-icon">🔖</span>
+            <span class="header-reading-label">จุดอ่านล่าสุด:</span>
+            <div class="header-reading-text">
+                <span class="header-reading-point" id="header-reading-point">อัลฟาติหะฮฺ — อายะฮ์ที่ 1</span>
+                <span class="header-reading-time" id="header-reading-time"></span>
+            </div>
+            <button class="header-set-btn" id="header-set-btn">ตั้งค่า</button>
+            <span class="header-divider"></span>
+            <button class="toggle-btn on" id="map-toggle" title="แสดง/ซ่อนแผนที่">
+                <span class="toggle-track">
+                    <span class="toggle-thumb"></span>
+                </span>
+            </button>
+            <button class="header-icon-btn" id="fullscreen-btn" title="เต็มจอ">⛶</button>
+        </div>
+    </header>
+
+    <div class="split-layout">
+        <div class="panel panel-left">
+            <iframe src="https://quran.com/1?startingVerse=1" id="embed-iframe" title="quran.com"></iframe>
+        </div>
+
+        <div class="panel panel-right">
+            <div class="panel-inner">
+                <div class="map-header">
+                    <div class="map-header-title">
+                        <svg class="map-header-icon" viewBox="0 0 24 24" aria-hidden="true" width="18" height="18">
+                            <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/>
+                        </svg>
+                        <span>Maqasid</span>
+                    </div>
+                    <select id="map-surah-select" class="map-surah-select" aria-label="เลือกสูเราะฮ์"></select>
+                </div>
+                <div class="map-area" id="map-area">
+                    <div class="placeholder">
+                        <div class="placeholder-icon">🗺️</div>
+                        กำลังโหลด...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="reading-modal">
+        <div class="modal">
+            <h3>ตั้งค่าจุดอ่านล่าสุด</h3>
+            <p class="modal-desc">บันทึกตำแหน่งที่คุณอ่านค้างไว้</p>
+            <div class="modal-controls">
+                <div class="modal-row">
+                    <label for="modal-surah">สูเราะฮ์:</label>
+                    <select id="modal-surah"></select>
+                </div>
+                <div class="modal-row">
+                    <label for="modal-ayah">อายะฮ์ที่:</label>
+                    <input type="number" id="modal-ayah" min="1" value="1">
+                    <span class="modal-ayah-max" id="modal-ayah-max">/ 7</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" id="save-btn">บันทึก</button>
+                <button class="modal-btn modal-btn-cancel" id="cancel-btn">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="quran_map_data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
