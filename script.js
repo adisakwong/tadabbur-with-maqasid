@@ -131,6 +131,74 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+const LANGUAGE_KEY = 'tadabbur-map-language';
+const MAP_LOCALIZATION = {
+  th: {
+    themesLabel: 'ธีมอายะฮ์',
+    detailLabel: 'รายละเอียด',
+    revealLabel: 'เผยพระวจนะ',
+    maxAyahLabel: 'อายะฮ์สูงสุด',
+    noMap: 'ไม่มี Maqasid สำหรับสูเราะฮฺนี้',
+    noData: 'ไม่มีข้อมูล Maqasid สำหรับสูเราะฮฺนี้',
+    headerReadingLabel: 'จุดอ่านล่าสุด:',
+    headerSetButton: 'ตั้งค่า',
+    modalTitle: 'ตั้งค่าจุดอ่านล่าสุด',
+    modalDesc: 'บันทึกตำแหน่งที่คุณอ่านค้างไว้',
+    modalSurahLabel: 'สูเราะฮ์:',
+    modalAyahLabel: 'อายะฮ์ที่:',
+    modalSaveButton: 'บันทึก',
+    modalCancelButton: 'ยกเลิก'
+  },
+  en: {
+    themesLabel: 'Themes',
+    detailLabel: 'Detail',
+    revealLabel: 'Revelation',
+    maxAyahLabel: 'Max Ayah',
+    noMap: 'No Maqasid for this surah',
+    noData: 'No Maqasid data for this surah',
+    headerReadingLabel: 'Last reading point:',
+    headerSetButton: 'Settings',
+    modalTitle: 'Set last reading point',
+    modalDesc: 'Save the place where you left off',
+    modalSurahLabel: 'Surah:',
+    modalAyahLabel: 'Verse:',
+    modalSaveButton: 'Save',
+    modalCancelButton: 'Cancel'
+  },
+  ms: {
+    themesLabel: 'Tema',
+    detailLabel: 'Perincian',
+    revealLabel: 'Wahyu',
+    maxAyahLabel: 'Ayat Maks',
+    noMap: 'Tiada Maqasid untuk surah ini',
+    noData: 'Tiada data Maqasid untuk surah ini',
+    headerReadingLabel: 'Titik bacaan terakhir:',
+    headerSetButton: 'Tetapan',
+    modalTitle: 'Tetapkan titik bacaan terakhir',
+    modalDesc: 'Simpan tempat anda berhenti membaca',
+    modalSurahLabel: 'Surah:',
+    modalAyahLabel: 'Ayat:',
+    modalSaveButton: 'Simpan',
+    modalCancelButton: 'Batal'
+  }
+};
+
+function getMapLanguage() {
+  const lang = localStorage.getItem(LANGUAGE_KEY);
+  return lang === 'en' || lang === 'ms' ? lang : 'th';
+}
+
+function setMapLanguage(lang) {
+  if (lang !== 'en' && lang !== 'ms' && lang !== 'th') lang = 'th';
+  localStorage.setItem(LANGUAGE_KEY, lang);
+}
+
+function getLocalizedValue(item, field, lang) {
+  if (!item || !field) return '';
+  const target = `${field}_${lang}`;
+  return item[target] || item[field] || '';
+}
+
 function populateSelect(selId, selectedId = 1) {
   const sel = document.getElementById(selId);
   if (!sel) return;
@@ -139,7 +207,17 @@ function populateSelect(selId, selectedId = 1) {
   SURAHS.forEach(s => {
     const opt = document.createElement('option');
     opt.value = s.id;
-    opt.textContent = surahLabel(s);
+    // For the right-panel map dropdown show "number + English name" only
+    if (selId === 'map-surah-select' || selId === 'modal-surah') {
+      const mapData = (window.QURAN_MAP_DATA || []);
+      const entry = mapData.find(e => String(e.surah_id) === String(s.id));
+      let enName = (entry && (entry.name || entry.name_en)) || s.thai || s.arabic;
+      // Fix spelling for surah 106 per user request
+      if (Number(s.id) === 106) enName = 'Quraysh';
+      opt.textContent = `${pad(s.id)}. ${enName}`;
+    } else {
+      opt.textContent = surahLabel(s);
+    }
     sel.appendChild(opt);
   });
 
@@ -213,6 +291,8 @@ async function loadMapData() {
 const embedIframe = document.getElementById('embed-iframe');
 const headerPoint = document.getElementById('header-reading-point');
 const headerTime = document.getElementById('header-reading-time');
+const headerReadingLabel = document.querySelector('.header-reading-label');
+const headerSetButton = document.getElementById('header-set-btn');
 
 function updateHeaderTime() {
   const stored = getReadingPoint();
@@ -228,12 +308,47 @@ function updateHeaderTime() {
   }
 }
 
+function updateHeaderReadingDisplay(surahId, ayah) {
+  const s = SURAHS.find(item => item.id === surahId);
+  if (!s) return;
+
+  const lang = getMapLanguage();
+  const t = MAP_LOCALIZATION[lang] || MAP_LOCALIZATION.th;
+  const entry = (window.QURAN_MAP_DATA || []).find(item => String(item.surah_id) === String(surahId));
+
+  let surahName = s.thai;
+  if (lang === 'en') {
+    surahName = entry?.name_en || entry?.name || s.thai;
+  } else if (lang === 'ms') {
+    surahName = entry?.name_ms || entry?.name || s.thai;
+  }
+
+  const ayahLabel = lang === 'en'
+    ? `Verse ${ayah}`
+    : lang === 'ms'
+      ? `Ayat ${ayah}`
+      : `อายะฮ์ที่ ${ayah}`;
+
+  if (headerReadingLabel) {
+    headerReadingLabel.textContent = t.headerReadingLabel;
+  }
+
+  if (headerSetButton) {
+    headerSetButton.textContent = t.headerSetButton;
+  }
+
+  if (headerPoint) {
+    headerPoint.textContent = `${surahName} — ${ayahLabel}`;
+  }
+
+  updateHeaderTime();
+}
+
 async function updateAll(surahId, ayah) {
   const s = SURAHS.find(item => item.id === surahId);
   if (!s) return;
 
-  headerPoint.textContent = `${s.thai} — อายะฮ์ที่ ${ayah}`;
-  updateHeaderTime();
+  updateHeaderReadingDisplay(surahId, ayah);
   embedIframe.src = `https://quran.com/${surahId}?startingVerse=${ayah}`;
 
   if (!mapPanelIsIndependent) {
@@ -250,7 +365,7 @@ async function loadMap(surahId) {
   const area = document.getElementById('map-area');
 
   if (!s) {
-    area.innerHTML = `<div class="placeholder"><div class="placeholder-icon">🗺️</div>ไม่มีแผนที่สำหรับสูเราะฮฺนี้</div>`;
+    area.innerHTML = `<div class="placeholder"><div class="placeholder-icon">🗺️</div>ไม่มี Maqasid สำหรับสูเราะฮฺนี้</div>`;
     return;
   }
 
@@ -258,36 +373,43 @@ async function loadMap(surahId) {
   const entry = mapData.find(item => String(item.surah_id) === String(surahId));
 
   if (!entry) {
-    area.innerHTML = `<div class="placeholder"><div class="placeholder-icon">🗺️</div>ไม่มีข้อมูลแผนที่สำหรับสูเราะฮฺนี้</div>`;
+    const lang = getMapLanguage();
+    const t = MAP_LOCALIZATION[lang];
+    area.innerHTML = `<div class="placeholder"><div class="placeholder-icon">🗺️</div>${escapeHtml(t.noData)}</div>`;
     return;
   }
+
+  const lang = getMapLanguage();
+  const t = MAP_LOCALIZATION[lang];
+  const displayName = getLocalizedValue(entry, 'name', lang) || s.thai;
+  const revealText = getLocalizedValue(entry, 'reveal', lang) || '-';
 
   const thematicItems = (entry.thematic_ayat || [])
     .filter(item => item && (item.ayat_range || item.theme))
     .map(item => `
       <li>
         <span class="theme-range">${escapeHtml(item.ayat_range || '')}</span>
-        <span class="theme-text">${escapeHtml(item.theme || '')}</span>
+        <span class="theme-text">${escapeHtml(getLocalizedValue(item, 'theme', lang) || item.theme || '')}</span>
       </li>`)
     .join('');
 
   const thematicSection = thematicItems
-    ? `<div class="map-section"><h4>ธีมอายะฮ์</h4><ul class="map-list">${thematicItems}</ul></div>`
+    ? `<div class="map-section"><h4>${escapeHtml(t.themesLabel)}</h4><ul class="map-list">${thematicItems}</ul></div>`
     : '';
 
-  const detailText = (entry.content_detail || '').trim();
+  const detailText = (getLocalizedValue(entry, 'content_detail', lang) || '').trim();
   const detailSection = detailText
-    ? `<div class="map-section"><h4>รายละเอียด</h4><p>${escapeHtml(detailText)}</p></div>`
-    : '<div class="map-section"><h4>รายละเอียด</h4><p>ข้อมูลเชิงลึกสำหรับสูเราะฮ์นี้ยังไม่ถูกลงรายละเอียดในฐานข้อมูลนี้ แต่ข้อมูลพื้นฐานด้านสูเราะฮ์ยังแสดงอยู่ด้านบนแล้ว</p></div>';
+    ? `<div class="map-section"><h4>${escapeHtml(t.detailLabel)}</h4><p>${escapeHtml(detailText)}</p></div>`
+    : `<div class="map-section"><h4>${escapeHtml(t.detailLabel)}</h4><p>${escapeHtml(t.noData)}</p></div>`;
 
   area.innerHTML = `
     <div class="map-content">
       <div class="map-summary">
-        <h3>${escapeHtml(surahLabel(s))}</h3>
+        <h3>${escapeHtml(`${pad(s.id)}. ${s.arabic}`)}</h3>
         <div class="map-meta">
-          <span class="map-pill">${escapeHtml(entry.name || s.thai)}</span>
-          <span class="map-pill">เผยพระวจนะ: ${escapeHtml(entry.reveal || '-')}</span>
-          <span class="map-pill">อายะฮ์สูงสุด: ${escapeHtml(String(entry.max_ayat || s.ayahs || '-'))}</span>
+          <span class="map-pill">${escapeHtml(displayName)}</span>
+          <span class="map-pill">${escapeHtml(`${t.revealLabel}: ${revealText}`)}</span>
+          <span class="map-pill">${escapeHtml(`${t.maxAyahLabel}: ${String(entry.max_ayat || s.ayahs || '-')}`)}</span>
         </div>
       </div>
       ${thematicSection}
@@ -295,10 +417,23 @@ async function loadMap(surahId) {
     </div>`;
 }
 
+// ---- Modal Elements (needed before init) ----
+const modal = document.getElementById('reading-modal');
+const modalSurah = document.getElementById('modal-surah');
+const modalAyah = document.getElementById('modal-ayah');
+const modalAyahMax = document.getElementById('modal-ayah-max');
+const modalTitle = document.querySelector('#reading-modal h3');
+const modalDesc = document.querySelector('#reading-modal .modal-desc');
+const modalSurahLabel = document.querySelector('#reading-modal label[for="modal-surah"]');
+const modalAyahLabel = document.querySelector('#reading-modal label[for="modal-ayah"]');
+const modalSaveBtn = document.getElementById('save-btn');
+const modalCancelBtn = document.getElementById('cancel-btn');
+
 // ---- Init ----
 try {
   populateSelect('modal-surah', getPoint().surahId);
   populateSelect('map-surah-select', getPoint().surahId);
+  updateModalLocalization();
 
   const initPoint = getPoint();
   void updateAll(initPoint.surahId, initPoint.ayah);
@@ -314,6 +449,7 @@ try {
 const mapToggle = document.getElementById('map-toggle');
 const splitLayout = document.querySelector('.split-layout');
 const mapSurahSelect = document.getElementById('map-surah-select');
+const mapLanguageSelect = document.getElementById('map-language-select');
 
 if (mapSurahSelect) {
   mapSurahSelect.addEventListener('change', () => {
@@ -322,6 +458,19 @@ if (mapSurahSelect) {
 
     mapPanelIsIndependent = true;
     void loadMap(selectedSurah);
+  });
+}
+
+if (mapLanguageSelect) {
+  mapLanguageSelect.value = getMapLanguage();
+  mapLanguageSelect.addEventListener('change', () => {
+    setMapLanguage(mapLanguageSelect.value);
+    const selectedSurah = Number(mapSurahSelect?.value || getPoint().surahId);
+    if (Number.isFinite(selectedSurah)) {
+      updateHeaderReadingDisplay(selectedSurah, getPoint().ayah);
+      updateModalLocalization();
+      void loadMap(selectedSurah);
+    }
   });
 }
 
@@ -378,16 +527,23 @@ if (headerTime) {
 
 // ---- Events: Reading Point Modal ----
 
-const modal = document.getElementById('reading-modal');
-const modalSurah = document.getElementById('modal-surah');
-const modalAyah = document.getElementById('modal-ayah');
-const modalAyahMax = document.getElementById('modal-ayah-max');
-
 function updateModalAyahMax() {
   const id = Number(modalSurah.value);
   const s = SURAHS.find(item => item.id === id);
   const max = s ? s.ayahs : 1;
   modalAyahMax.textContent = `/ ${max}`;
+}
+
+function updateModalLocalization() {
+  const lang = getMapLanguage();
+  const t = MAP_LOCALIZATION[lang] || MAP_LOCALIZATION.th;
+
+  if (modalTitle) modalTitle.textContent = t.modalTitle;
+  if (modalDesc) modalDesc.textContent = t.modalDesc;
+  if (modalSurahLabel) modalSurahLabel.textContent = t.modalSurahLabel;
+  if (modalAyahLabel) modalAyahLabel.textContent = t.modalAyahLabel;
+  if (modalSaveBtn) modalSaveBtn.textContent = t.modalSaveButton;
+  if (modalCancelBtn) modalCancelBtn.textContent = t.modalCancelButton;
 }
 
 modalSurah.addEventListener('change', updateModalAyahMax);
@@ -396,6 +552,7 @@ document.getElementById('header-set-btn').addEventListener('click', () => {
   const point = getPoint();
   modalSurah.value = point.surahId;
   modalAyah.value = point.ayah;
+  updateModalLocalization();
   updateModalAyahMax();
   modal.classList.add('open');
 });

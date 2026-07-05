@@ -1,112 +1,124 @@
-# Tadabbur-Maqasid — ใคร่ครวญอัลกุรอานเชิงลึก
+# Tadabbur-Maqasid — Quran Deep Contemplation
 
-เว็บแอปพลิเคชันสแตติกสำหรับศึกษาอัลกุรอานแบบ Tadabbur พร้อมกับ Maqasid แบ่งหน้าจอเป็น 2 ส่วน: ด้านซ้ายแสดงเนื้อหาจาก quran.com ตามจุดอ่านล่าสุด ด้านขวาแสดงข้อมูล Maqasid(วัตถุประสงค์ของสูเราะฮ์และเป้าหมายของกลุ่มอายะฮ์นั้น)
+A static web application for studying the Quran with Tadabbur (reflection) and Maqasid (objectives). The screen is split into two panels: the left panel displays the Quran text from quran.com, and the right panel shows Maqasid data — the objectives and thematic structure of each surah and verse groups.
 
 ## UI Layout
 
 ```
  ┌──────────────────────────────────────────────────────────────┐
- │  Tadabbur-Maqasid 📖 จุดอ่านล่าสุด: สูเราะฮ์ — อายะฮ์ที่ X  [ตั้งค่า] │
+ │  Tadabbur-Maqasid 📖 Last reading: Surah — Verse X [Set]    │
  ├──────────────────────────────────┬───────────────────────────┤
  │                                  │                           │
  │  quran.com/{surah}               │  Maqasid                 │
  │  ?startingVerse={ayah}           │                           │
- │                                  │  (iframe แผนที่ HTML)     │
- │  (iframe quran.com)              │                           │
+ │                                  │  (thematic map)          │
+ │  (quran.com iframe)              │                           │
  │                                  │                           │
  │           60%                    │           40%             │
  └──────────────────────────────────┴───────────────────────────┘
 ```
 
-## คุณสมบัติ
+## Features
+
+### 🌐 Multi-language Support
+- Interface available in **Thai**, **English**, and **Malay**
+- Maqasid content (themes and descriptions) translated into all three languages
+- Language selector in the right panel header
+- Language preference saved in `localStorage`
 
 ### 🔖 Last Reading Point
-- บันทึกตำแหน่งอ่านล่าสุด (สูเราะฮ์ + อายะฮ์) ลง `localStorage`
-- แสดงใน title bar พร้อมปุ่ม "ตั้งค่า" สำหรับแก้ไข
-- Modal เลือกสูเราะฮ์และอายะฮ์ (ค่าสูงสุดของอายะฮ์ปรับตามสูเราะฮ์ที่เลือก)
-- ถ้าไม่มีจุดอ่าน ระบบจะแสดง Al-Fatihah อายะฮ์ที่ 1 โดยอัตโนมัติ
+- Save your last reading position (surah + verse) to `localStorage`
+- Displayed in the header bar with timestamp
+- Modal form for editing with surah dropdown and verse input
+- Max verse count auto-updates based on selected surah
+- Defaults to Al-Fatihah verse 1 if no point is saved
 
-### Panel ซ้าย (60%)
-- แสดงหน้า quran.com ผ่าน iframe ด้วย URL: `https://quran.com/{surah_id}?startingVerse={ayah}`
-- อัปเดตอัตโนมัติเมื่อตั้งค่าจุดอ่าน
+### Left Panel (60%)
+- Embeds quran.com via iframe: `https://quran.com/{surah_id}?startingVerse={ayah}`
+- Auto-updates when reading point changes
 
-### Panel ขวา (40%)
-- แสดงข้อมูล Maqasid/โครงสร้างเป้าประสงค์ของสูเราะฮ์จากข้อมูลใน `quran_map_data.js`
-- ซิงค์กับสูเราะฮ์เดียวกับ panel ซ้าย
+### Right Panel (40%)
+- Displays Maqasid data (surah objectives, thematic verse groups, and details)
+- Data sourced from `quran_map_data.js`
+- Syncs with the same surah as the left panel
+- Independent browsing available (changing surah in the map dropdown won't affect the iframe)
 
-### ปุ่มเปิด/Maqasid
-- ปุ่มใน header สำหรับแสดง/ซ่อน Maqasid
-- เมื่อซ่อน panel ขวา, panel ซ้ายจะขยายเต็มความกว้าง
-- สถานะถูกบันทึกใน `localStorage`
+### Map Toggle
+- Header toggle button to show/hide the Maqasid panel
+- When hidden, the left panel expands to full width
+- State persisted in `localStorage`
 
-### ⛶ Fullscreen
-- ปุ่มเต็มจอใน header สำหรับขยายหน้าเว็บแบบ fullscreen
-- ใช้ Fullscreen API ของเบราว์เซอร์
-- เปลี่ยนปุ่มเป็น ✕ เมื่ออยู่ในโหมดเต็มจอ, กดอีกครั้งเพื่อออก
+### ⛶ Fullscreen Mode
+- Fullscreen button in the header using the Fullscreen API
+- Button icon changes to ✕ when in fullscreen mode
 
-### Responsive
-- จอใหญ่ (> 768px): แสดงเคียงข้างกัน
-- จอเล็ก (< 768px): ซ้อนแนวตั้ง (panel ซ้ายอยู่ด้านบน)
+### 📱 Responsive Design
+- Large screens (> 768px): side-by-side layout
+- Small screens (< 768px): stacked vertically (left panel on top)
 
-## คู่มือการใช้งาน (Using Guide)
-
-### เริ่มต้นใช้งาน
-1. เปิด `index.html` ในเว็บเบราว์เซอร์
-2. หน้าเว็บจะโหลด Al-Fatihah อายะฮ์ที่ 1 โดยอัตโนมัติ (ด้านซ้าย) พร้อมแผนที่ (ด้านขวา)
-
-### ตั้งค่าจุดอ่าน
-1. กดปุ่ม **ตั้งค่า** ที่ header
-2. เลือก **สูเราะฮ์** ที่ต้องการจาก dropdown
-3. ระบุ **อายะฮ์ที่** ที่อ่านค้างไว้ (จำนวนสูงสุดปรับอัตโนมัติตามสูเราะฮ์)
-4. กด **บันทึก**
-5. ทั้งสอง panel จะอัปเดตไปยังสูเราะฮ์และอายะฮ์นั้นทันที
-
-### จัดการ panel Maqasid
-- กด **ปิดแผนที่** เพื่อซ่อน panel ขวา (panel ซ้ายขยายเต็มจอ)
-- กด **เปิดMaqasid** เพื่อแสดง panel ขวากลับมา
-- สถานะนี้จะถูกจำไว้ แม้ปิดเบราว์เซอร์แล้วเปิดใหม่
-
-### โหมดเต็มจอ
-- กด **⛶** เพื่อขยายหน้าเว็บเป็น fullscreen
-- เมื่ออยู่ในโหมด fullscreen ปุ่มจะเปลี่ยนเป็น **✕** กดเพื่อออก
-
-### อ่านอัลกุรอาน
-- panel ซ้ายแสดงหน้า quran.com ของสูเราะฮ์และอายะฮ์ที่ตั้งไว้
-- คุณสามารถอ่าน, เลื่อน, ค้นหา, ฟังเสียงอ่าน
-- คลิกภายใน panel เพื่อใช้งาน quran.com ได้เต็มที่
-
-### ศึกษา Maqasid
-- panel ขวาแสดงข้อมูล Maqasid ของสูเราะฮ์นั้น
-- ข้อมูลนี้ช่วยให้เห็นภาพรวมเนื้อหาของสูเราะฮ์ในรูปแบบหัวข้อและเป้าประสงค์ของกลุ่มอายะห์
-
-## โครงสร้างไฟล์
+## File Structure
 
 ```
 .
-├── index.html            # หน้าเว็บหลัก
-├── style.css             # สไตล์ทั้งหมด (split-panel, modal, responsive)
-├── script.js             # ตรรกะ: SURAHS (114 สูเราะฮ์), reading point, iframe, map
-├── quran_map_data.js     # ข้อมูล Maqasid ของสูเราะฮ์
+├── index.html            # Main HTML page
+├── style.css             # All styles (split-panel, modal, responsive)
+├── script.js             # Logic: SURAHS data, reading point, iframe, map, i18n
+├── quran_map_data.js     # Maqasid data for all 114 surahs (TH/EN/MS)
 ├── README.md
 ```
 
-## วิธีติดตั้งและใช้งาน
+## How to Use
 
-เปิดไฟล์ `index.html` ด้วยเว็บเบราว์เซอร์โดยตรง หรือรันเซิร์ฟเวอร์:
+### Getting Started
+1. Open `index.html` in a web browser
+2. The page loads Al-Fatihah verse 1 by default (left panel) with Maqasid data (right panel)
+
+### Setting a Reading Point
+1. Click the **Set** button in the header
+2. Select a **Surah** from the dropdown
+3. Enter the **Verse** number (max updates automatically)
+4. Click **Save**
+5. Both panels update to the selected surah and verse
+
+### Managing the Maqasid Panel
+- Click the toggle button to hide/show the right panel
+- When hidden, the left panel expands to full width
+- State is remembered across browser sessions
+
+### Changing Language
+- Select **TH** / **EN** / **MS** from the language dropdown in the map header
+- The Maqasid content and UI labels switch immediately
+
+### Fullscreen Mode
+- Click **⛶** to enter fullscreen mode
+- The button changes to **✕** — click to exit
+
+### Reading the Quran
+- The left panel shows quran.com for the selected surah and verse
+- You can read, scroll, search, and listen to audio within the iframe
+
+### Studying Maqasid
+- The right panel displays Maqasid data for the current surah
+- Includes: surah name, revelation type, thematic verse groupings, and detailed description
+- Helps understand the overall structure and objectives of each surah
+
+## Installation
+
+Open `index.html` directly in a browser, or run a local server:
 
 ```bash
 python -m http.server 8000
 ```
 
-แล้วเปิด http://localhost:8000
+Then open http://localhost:8000
 
-## เทคโนโลยี
+## Technology
 
-| รายการ | รายละเอียด |
-|--------|------------|
-| HTML5 | โครงสร้างหน้าเว็บ |
+| Item | Details |
+|------|---------|
+| HTML5 | Page structure |
 | CSS3 | Flexbox layout, responsive design |
-| JavaScript (ES6+) | ตรรกะทั้งหมด, ไม่มี dependencies |
-| localStorage | เก็บ Last Reading Point และสถานะ toggle แผนที่ |
-| quran.com | แสดงผ่าน iframe ด้วย URL `?startingVerse=` |
-| quran_map_data.js | ไฟล์เป้าประสงค์ของสูเราะฮ์และกลุ่มอายะฮ์ |
+| JavaScript (ES6+) | All logic, no external dependencies |
+| localStorage | Stores reading point, map visibility, language preference |
+| quran.com | Embedded via iframe with `?startingVerse=` parameter |
+| quran_map_data.js | Maqasid data (surah objectives and thematic verse groups) in Thai, English, and Malay |

@@ -247,8 +247,22 @@ header h1 {
     fill: #16a085;
 }
 
+.map-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.map-language-label {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 600;
+}
+
+.map-language-select,
 .map-surah-select {
-    min-width: 220px;
+    min-width: 140px;
     padding: 8px 10px;
     border: 1px solid #dce1e8;
     border-radius: 8px;
