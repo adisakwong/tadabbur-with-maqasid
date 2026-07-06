@@ -134,7 +134,7 @@ function escapeHtml(value) {
 const LANGUAGE_KEY = 'tadabbur-map-language';
 const MAP_LOCALIZATION = {
   th: {
-    themesLabel: 'ธีมอายะฮ์',
+    themesLabel: 'สาระสำคัญของอายะฮ์',
     detailLabel: 'รายละเอียด',
     revealLabel: 'เผยพระวจนะ',
     maxAyahLabel: 'อายะฮ์สูงสุด',
@@ -150,7 +150,7 @@ const MAP_LOCALIZATION = {
     modalCancelButton: 'ยกเลิก'
   },
   en: {
-    themesLabel: 'Themes',
+    themesLabel: 'Verses Theme',
     detailLabel: 'Detail',
     revealLabel: 'Revelation',
     maxAyahLabel: 'Max Ayah',
@@ -166,7 +166,7 @@ const MAP_LOCALIZATION = {
     modalCancelButton: 'Cancel'
   },
   ms: {
-    themesLabel: 'Tema',
+    themesLabel: 'Tema Ayat',
     detailLabel: 'Perincian',
     revealLabel: 'Wahyu',
     maxAyahLabel: 'Ayat Maks',
