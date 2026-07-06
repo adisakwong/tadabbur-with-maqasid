@@ -523,7 +523,10 @@ header h1 {
     }
     .panel-left iframe { min-height: 400px; }
     .panel-inner { padding: 14px; }
-    .map-header { align-items: flex-start; }
-    .map-surah-select { width: 100%; min-width: 0; }
+    .map-header { flex-wrap: nowrap; }
+    .map-controls { flex-wrap: nowrap; }
+    .map-language-label { display: none; }
+    .map-language-select,
+    .map-surah-select { min-width: 0; width: auto; font-size: 0.8rem; padding: 6px 8px; }
     .map-iframe { min-height: 350px; }
 }
