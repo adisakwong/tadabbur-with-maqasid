@@ -227,49 +227,52 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     padding-bottom: 14px;
     border-bottom: 1px solid #e0e5ec;
     margin-bottom: 14px;
     font-size: 0.95rem;
     font-weight: 600;
     color: #555;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .map-header-title {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 0;
 }
 
 .map-header-icon {
     fill: #16a085;
+    flex-shrink: 0;
 }
 
 .map-controls {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 8px;
+    flex-wrap: nowrap;
+    min-width: 0;
 }
 
 .map-language-label {
-    font-size: 0.9rem;
-    color: #555;
-    font-weight: 600;
+    display: none;
 }
 
 .map-language-select,
 .map-surah-select {
-    min-width: 140px;
-    padding: 8px 10px;
+    min-width: 0;
+    width: auto;
+    padding: 6px 8px;
     border: 1px solid #dce1e8;
     border-radius: 8px;
     background: #fff;
     color: #2c3e50;
     font-size: 0.9rem;
     outline: none;
+    flex-shrink: 1;
 }
 
 .map-surah-select:focus {
@@ -502,15 +505,6 @@ header h1 {
 
 .modal-btn-cancel:hover { background: #f5f5f5; }
 
-/* ---- Tablet / Small screen: compact map header ---- */
-@media (max-width: 1024px) {
-    .map-header { flex-wrap: nowrap; }
-    .map-controls { flex-wrap: nowrap; }
-    .map-language-label { display: none; }
-    .map-language-select,
-    .map-surah-select { min-width: 0; width: auto; font-size: 0.8rem; padding: 6px 8px; }
-}
-
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
     header { padding: 10px 16px; }
@@ -532,5 +526,7 @@ header h1 {
     }
     .panel-left iframe { min-height: 400px; }
     .panel-inner { padding: 14px; }
+    .map-language-select,
+    .map-surah-select { font-size: 0.8rem; padding: 5px 6px; }
     .map-iframe { min-height: 350px; }
 }
