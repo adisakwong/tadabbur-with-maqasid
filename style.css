@@ -9,7 +9,7 @@ body {
     background: #f5f7fa;
     color: #2c3e50;
     line-height: 1.6;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -196,10 +196,11 @@ header h1 {
 .panel {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 48px);
+    min-height: 0;
 }
 
 .panel-left {
+    flex: 0 0 60%;
     width: 60%;
     border-right: 1px solid #e0e5ec;
 }
@@ -211,7 +212,9 @@ header h1 {
 }
 
 .panel-right {
+    flex: 0 0 40%;
     width: 40%;
+    overflow: hidden;
 }
 
 .panel-inner {
@@ -219,7 +222,7 @@ header h1 {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    min-height: 0;
 }
 
 /* ---- Right Panel: Map ---- */
@@ -283,7 +286,28 @@ header h1 {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 300px;
+    min-height: 0;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #b0c4ce #e8edf0;
+}
+
+.map-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.map-area::-webkit-scrollbar-track {
+    background: #e8edf0;
+    border-radius: 4px;
+}
+
+.map-area::-webkit-scrollbar-thumb {
+    background: #b0c4ce;
+    border-radius: 4px;
+}
+
+.map-area::-webkit-scrollbar-thumb:hover {
+    background: #8fa8b5;
 }
 
 .map-area .placeholder {
@@ -312,7 +336,6 @@ header h1 {
     border-radius: 12px;
     padding: 16px;
     box-shadow: 0 6px 18px rgba(0,0,0,.04);
-    overflow: auto;
 }
 
 .map-summary h3 {
@@ -517,6 +540,7 @@ header h1 {
     }
     .panel-left,
     .panel-right {
+        flex: none;
         width: 100%;
         min-height: auto;
     }
